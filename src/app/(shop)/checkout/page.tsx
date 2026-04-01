@@ -9,6 +9,10 @@ import { Lock, CreditCard, Truck } from 'lucide-react'
 import { useCartStore } from '@/store/cart'
 import { formatCLP, validateRut, formatRut, CHILE_REGIONS, getShippingRate } from '@/lib/utils'
 import { CheckoutStepper } from '@/components/checkout/CheckoutStepper'
+import {
+  buildTransferWhatsappUrl,
+  type PaymentMethod,
+} from '@/lib/orders'
 
 // ─── Schema por paso ───────────────────────────────────────────────────────────
 
@@ -229,11 +233,11 @@ function PaymentStep({
   total,
 }: {
   onBack: () => void
-  onSubmit: (method: 'webpay' | 'mercadopago') => void
+  onSubmit: (method: PaymentMethod) => void
   loading: boolean
   total: number
 }) {
-  const [method, setMethod] = useState<'webpay' | 'mercadopago'>('webpay')
+  const [method, setMethod] = useState<PaymentMethod>('webpay')
 
   const PAYMENT_METHODS = [
     {
@@ -244,11 +248,11 @@ function PaymentStep({
       enabled: true,
     },
     {
-      id: 'mercadopago' as const,
-      name: 'MercadoPago',
-      desc: 'Próximamente',
-      icon: '💳',
-      enabled: false,
+      id: 'transfer' as const,
+      name: 'Transferencia / WhatsApp',
+      desc: 'Te enviamos a WhatsApp con el pedido precargado para coordinar pago',
+      icon: '💬',
+      enabled: true,
     },
   ]
 
@@ -304,7 +308,7 @@ function PaymentStep({
           className="btn-primary flex-1 justify-center"
         >
           <CreditCard size={16} />
-          {loading ? 'Procesando…' : 'Pagar ahora'}
+          {loading ? 'Procesando…' : method === 'webpay' ? 'Ir a Webpay' : 'Continuar por WhatsApp'}
         </button>
       </div>
     </div>
@@ -335,12 +339,8 @@ function CheckoutContent() {
     return null
   }
 
-  async function handlePayment(method: 'webpay' | 'mercadopago') {
+  async function handlePayment(method: PaymentMethod) {
     if (!personalData || !shippingData) return
-    if (method !== 'webpay') {
-      setError('Por ahora solo Webpay Plus está disponible')
-      return
-    }
     setLoading(true)
     setError(null)
 
@@ -385,7 +385,40 @@ function CheckoutContent() {
 
         clearCart()
         window.location.href = payData.redirectUrl
+        return
       }
+
+      const whatsappUrl = buildTransferWhatsappUrl({
+        origin: window.location.origin,
+        orderId: orderData.orderId,
+        orderNumber: orderData.orderNumber,
+        accessToken: orderData.orderAccessToken,
+        customer: {
+          firstName: personalData.firstName,
+          lastName: personalData.lastName,
+          email: personalData.email,
+          phone: personalData.phone,
+        },
+        shipping: {
+          street: shippingData.street,
+          number: shippingData.number,
+          apartment: shippingData.apartment,
+          commune: shippingData.commune,
+          region: region?.name ?? shippingData.regionCode,
+        },
+        items: items.map((item) => ({
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        subtotal: orderData.subtotal,
+        shippingCost: orderData.shipping,
+        discount: orderData.discount,
+        total: orderData.total,
+      })
+
+      clearCart()
+      window.location.href = whatsappUrl
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error inesperado')
       setLoading(false)

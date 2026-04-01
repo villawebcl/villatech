@@ -9,6 +9,7 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { OrderStatus } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
+import { fulfillPaidOrder, getPaymentMethodLabel } from '@/lib/orders'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -36,12 +37,32 @@ const STATUS_COLORS: Record<OrderStatus, string> = {
 
 async function updateOrderStatus(orderId: string, status: OrderStatus, note?: string) {
   'use server'
-  await prisma.$transaction([
-    prisma.order.update({ where: { id: orderId }, data: { status } }),
-    prisma.orderStatusHistory.create({
+  await prisma.$transaction(async (tx) => {
+    const currentOrder = await tx.order.findUnique({
+      where: { id: orderId },
+      select: { status: true, paymentMethod: true },
+    })
+
+    if (!currentOrder) {
+      throw new Error('Order not found')
+    }
+
+    if (status === 'PAID' && currentOrder.status === 'PENDING') {
+      const paymentNote =
+        note ||
+        (currentOrder.paymentMethod === 'transfer'
+          ? 'Pago por transferencia confirmado manualmente'
+          : `Estado cambiado a ${STATUS_LABELS[status]}`)
+
+      await fulfillPaidOrder(tx, orderId, { note: paymentNote })
+      return
+    }
+
+    await tx.order.update({ where: { id: orderId }, data: { status } })
+    await tx.orderStatusHistory.create({
       data: { orderId, status, note: note || `Estado cambiado a ${STATUS_LABELS[status]}` },
-    }),
-  ])
+    })
+  })
   revalidatePath(`/admin/pedidos/${orderId}`)
 }
 
@@ -254,7 +275,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
               <span>{formatCLP(order.total)}</span>
             </div>
             <p className="text-xs text-[#555555] mt-1 capitalize">
-              {order.paymentMethod === 'webpay' ? 'Webpay Plus' : 'MercadoPago'}
+              {getPaymentMethodLabel(order.paymentMethod)}
             </p>
           </div>
         </div>

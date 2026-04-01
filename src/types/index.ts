@@ -1,4 +1,5 @@
 import type { Product, Category, Order, OrderItem, User, Coupon } from '@prisma/client'
+import type { PaymentMethod } from '@/lib/orders'
 
 // ─── Producto con categoría ────────────────────────────────────────────────────
 export type ProductWithCategory = Product & {
@@ -77,7 +78,7 @@ export interface CheckoutData {
   invoiceType: 'BOLETA' | 'FACTURA'
   rut?: string
   couponCode?: string
-  paymentMethod: 'webpay' | 'mercadopago'
+  paymentMethod: PaymentMethod
 }
 
 // ─── Respuesta de validación de cupón ─────────────────────────────────────────

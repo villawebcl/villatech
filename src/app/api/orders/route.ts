@@ -29,7 +29,7 @@ const OrderSchema = z.object({
   invoiceType: z.enum(['BOLETA', 'FACTURA']),
   rut: z.string().optional(),
   couponCode: z.string().optional(),
-  paymentMethod: z.literal('webpay'),
+  paymentMethod: z.enum(['webpay', 'transfer']),
 })
 
 function generateOrderNumber() {
@@ -135,7 +135,13 @@ export async function POST(request: NextRequest) {
         create: orderItems,
       },
       statusHistory: {
-        create: { status: 'PENDING', note: 'Pedido creado' },
+        create: {
+          status: 'PENDING',
+          note:
+            paymentMethod === 'transfer'
+              ? 'Pedido creado. Pendiente de coordinación por transferencia.'
+              : 'Pedido creado',
+        },
       },
     },
   })
@@ -145,13 +151,16 @@ export async function POST(request: NextRequest) {
       orderId: order.id,
       orderNumber: order.orderNumber,
       orderAccessToken: order.accessToken,
+      subtotal,
+      shipping: shippingCost,
+      discount,
       total,
     },
     { status: 201 }
   )
 }
 
-export async function GET(_request: NextRequest) {
+export async function GET() {
   const session = await auth()
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

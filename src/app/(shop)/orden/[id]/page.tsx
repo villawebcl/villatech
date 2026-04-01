@@ -9,6 +9,10 @@ import { auth } from '@/lib/auth'
 import { formatCLP } from '@/lib/utils'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import {
+  buildTransferWhatsappUrl,
+  getPaymentMethodLabel,
+} from '@/lib/orders'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -54,8 +58,39 @@ export default async function OrderPage({ params, searchParams }: PageProps) {
   const StatusIcon = statusInfo.icon
   const shipping = order.shippingAddress as {
     firstName: string; lastName: string; street: string; number: string;
-    commune: string; region: string; apartment?: string
+    commune: string; region: string; apartment?: string; email?: string; phone?: string
   }
+  const whatsappUrl =
+    order.paymentMethod === 'transfer' && order.status === 'PENDING'
+      ? buildTransferWhatsappUrl({
+          origin: process.env.NEXT_PUBLIC_URL,
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          accessToken: order.accessToken,
+          customer: {
+            firstName: shipping.firstName,
+            lastName: shipping.lastName,
+            email: shipping.email ?? order.guestEmail ?? session?.user.email ?? '',
+            phone: shipping.phone ?? order.guestPhone ?? '',
+          },
+          shipping: {
+            street: shipping.street,
+            number: shipping.number,
+            apartment: shipping.apartment,
+            commune: shipping.commune,
+            region: shipping.region,
+          },
+          items: order.items.map((item) => ({
+            name: item.product.name,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+          subtotal: order.subtotal,
+          shippingCost: order.shipping,
+          discount: order.discount,
+          total: order.total,
+        })
+      : null
 
   return (
     <div className="container-site py-10 max-w-3xl">
@@ -159,7 +194,7 @@ export default async function OrderPage({ params, searchParams }: PageProps) {
               <span>{formatCLP(order.total)}</span>
             </div>
             <p className="text-xs text-[#888888] mt-1">
-              Pagado con {order.paymentMethod === 'webpay' ? 'Webpay Plus' : 'MercadoPago'}
+              Método seleccionado: {getPaymentMethodLabel(order.paymentMethod)}
             </p>
           </div>
         </div>
@@ -192,6 +227,25 @@ export default async function OrderPage({ params, searchParams }: PageProps) {
           </div>
         </div>
       </div>
+
+      {whatsappUrl && (
+        <div className="card p-5 mt-6">
+          <h2 className="font-display text-xs uppercase tracking-widest text-[#888888] mb-3">
+            Transferencia pendiente
+          </h2>
+          <p className="text-sm text-[#888888] leading-relaxed">
+            Envía este pedido por WhatsApp para coordinar la transferencia y compartir tu comprobante.
+          </p>
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-primary mt-4"
+          >
+            Abrir WhatsApp
+          </a>
+        </div>
+      )}
 
       {/* CTA */}
       <div className="flex flex-col sm:flex-row gap-3 mt-8 justify-center">

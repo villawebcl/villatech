@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { confirmWebpayTransaction } from '@/lib/transbank'
+import { fulfillPaidOrder } from '@/lib/orders'
 
 function buildOrderUrl(orderId: string, accessToken: string, extraSearch?: Record<string, string>) {
   const url = new URL(`/orden/${orderId}`, process.env.NEXT_PUBLIC_URL!)
@@ -40,50 +41,9 @@ export async function POST(request: NextRequest) {
     if (result.response_code === 0) {
       // Pago exitoso
       await prisma.$transaction(async (tx) => {
-        const orderWithItems = await tx.order.findUnique({
-          where: { id: order.id },
-          include: { items: true },
-        })
-
-        if (!orderWithItems) throw new Error('Order not found')
-
-        for (const item of orderWithItems.items) {
-          const updateResult = await tx.product.updateMany({
-            where: {
-              id: item.productId,
-              stock: { gte: item.quantity },
-            },
-            data: {
-              stock: { decrement: item.quantity },
-            },
-          })
-
-          if (updateResult.count !== 1) {
-            throw new Error('Insufficient stock')
-          }
-        }
-
-        if (orderWithItems.couponId) {
-          await tx.coupon.update({
-            where: { id: orderWithItems.couponId },
-            data: { usedCount: { increment: 1 } },
-          })
-        }
-
-        await tx.order.update({
-          where: { id: order.id },
-          data: {
-            status: 'PAID',
-            paymentData: result as object,
-          },
-        })
-
-        await tx.orderStatusHistory.create({
-          data: {
-            orderId: order.id,
-            status: 'PAID',
-            note: `Webpay confirmado. Autorización: ${result.authorization_code}`,
-          },
+        await fulfillPaidOrder(tx, order.id, {
+          paymentData: result as object,
+          note: `Webpay confirmado. Autorización: ${result.authorization_code}`,
         })
       })
 

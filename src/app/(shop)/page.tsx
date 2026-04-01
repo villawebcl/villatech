@@ -32,7 +32,7 @@ const TRUST_BADGES = [
   {
     icon: '🔒',
     title: 'Pago 100% seguro',
-    desc: 'Webpay Plus y MercadoPago con SSL en todos los pasos',
+    desc: 'Webpay Plus y transferencia coordinada por WhatsApp',
   },
   {
     icon: '📞',

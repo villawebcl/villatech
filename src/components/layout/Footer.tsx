@@ -76,7 +76,7 @@ export function Footer() {
         <div className="container-site py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             {/* Íconos de pago simplificados */}
-            {['Webpay', 'MercadoPago', 'Visa', 'Mastercard'].map((method) => (
+            {['Webpay', 'Transferencia', 'Visa', 'Mastercard'].map((method) => (
               <div
                 key={method}
                 className="px-2.5 py-1 border border-[#333333] rounded-[2px] bg-[#111111]"

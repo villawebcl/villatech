@@ -7,9 +7,23 @@ function shouldAllowSelfSignedCert() {
   )
 }
 
+function normalizeConnectionString(connectionString: string) {
+  if (!shouldAllowSelfSignedCert()) {
+    return connectionString
+  }
+
+  try {
+    const url = new URL(connectionString)
+    url.searchParams.set('sslmode', 'no-verify')
+    return url.toString()
+  } catch {
+    return connectionString
+  }
+}
+
 export function getPgConnectionConfig(connectionString: string): PoolConfig {
   return {
-    connectionString,
+    connectionString: normalizeConnectionString(connectionString),
     ...(shouldAllowSelfSignedCert()
       ? {
           ssl: {
