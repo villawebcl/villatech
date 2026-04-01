@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VillaTech
 
-## Getting Started
+Ecommerce en Next.js 16 + App Router + Prisma + NextAuth v5.
 
-First, run the development server:
+## Primera corrida local
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+1. Copia `.env.example` a `.env`.
+2. Completa al menos estas variables:
+
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/villatech"
+AUTH_SECRET="un-secreto-largo-de-32-caracteres-o-mas"
+NEXTAUTH_SECRET="un-secreto-largo-de-32-caracteres-o-mas"
+NEXTAUTH_URL="http://localhost:3000"
+NEXT_PUBLIC_URL="http://localhost:3000"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Levanta Postgres localmente y crea la base `villatech`.
+4. Ejecuta:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run db:push
+npm run db:seed
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Credenciales seed
 
-## Learn More
+- Admin: `admin@villatech.cl`
+- Password: `admin1234`
 
-To learn more about Next.js, take a look at the following resources:
+## Variables opcionales
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET`: habilitan login con Google.
+- `CLOUDINARY_*` y `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`: necesarias para subir imágenes desde el panel admin.
+- `TRANSBANK_*`: ya vienen con credenciales de integración para pruebas locales.
+- `MERCADOPAGO_*`, `UPSTASH_*`: declaradas, pero no participan del flujo principal actual.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Verificación rápida
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Tienda: `http://localhost:3000`
+- Admin: `http://localhost:3000/admin`
+- Login admin: usar las credenciales seed
