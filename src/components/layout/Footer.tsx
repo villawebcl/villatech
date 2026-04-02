@@ -24,18 +24,18 @@ const FOOTER_LINKS = {
 
 export function Footer() {
   return (
-    <footer className="border-t border-[#222222] bg-[#0A0A0A] mt-20">
+    <footer className="border-t border-[#222222] bg-[#0A0A0A] mt-24">
       {/* Contenido principal */}
-      <div className="container-site py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+      <div className="container-site pt-24 pb-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Marca */}
           <div className="lg:col-span-1">
             <Logo size="md" />
-            <p className="mt-4 text-[#888888] text-sm leading-relaxed max-w-[260px]">
+            <p className="mt-5 text-[#888888] text-sm leading-relaxed max-w-[260px]">
               Tu tienda de tecnología de confianza en Chile. Productos originales, garantía real, soporte técnico especializado.
             </p>
             {/* Trust badges */}
-            <div className="mt-5 flex flex-col gap-2">
+            <div className="mt-6 flex flex-col gap-2.5">
               {[
                 '✓ Envío a todo Chile',
                 '✓ Garantía oficial',
@@ -51,10 +51,10 @@ export function Footer() {
           {/* Links */}
           {Object.entries(FOOTER_LINKS).map(([title, links]) => (
             <div key={title}>
-              <h4 className="font-display text-[11px] tracking-widest uppercase text-[#888888] mb-4">
+              <h4 className="font-display text-[11px] tracking-widest uppercase text-[#888888] mb-5">
                 {title}
               </h4>
-              <ul className="space-y-2.5">
+              <ul className="space-y-3">
                 {links.map((link) => (
                   <li key={link.href}>
                     <Link
@@ -73,7 +73,7 @@ export function Footer() {
 
       {/* Métodos de pago */}
       <div className="border-t border-[#222222]">
-        <div className="container-site py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="container-site py-9 flex flex-col sm:flex-row items-center justify-between gap-5">
           <div className="flex items-center gap-3">
             {/* Íconos de pago simplificados */}
             {['Webpay', 'Transferencia', 'Visa', 'Mastercard'].map((method) => (

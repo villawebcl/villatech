@@ -23,6 +23,25 @@ const PersonalSchema = z.object({
   phone: z.string().min(8, 'Teléfono inválido'),
   invoiceType: z.enum(['BOLETA', 'FACTURA']),
   rut: z.string().optional(),
+}).superRefine((data, ctx) => {
+  if (data.invoiceType !== 'FACTURA') return
+
+  if (!data.rut?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['rut'],
+      message: 'RUT requerido para factura',
+    })
+    return
+  }
+
+  if (!validateRut(data.rut)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['rut'],
+      message: 'RUT inválido',
+    })
+  }
 })
 
 const ShippingSchema = z.object({
@@ -98,7 +117,7 @@ function PersonalStep({
             <button
               key={type}
               type="button"
-              onClick={() => setValue('invoiceType', type)}
+              onClick={() => setValue('invoiceType', type, { shouldValidate: true })}
               className={`flex-1 py-2.5 text-sm font-display uppercase tracking-wider rounded-[2px] border transition-colors ${
                 invoiceType === type
                   ? 'bg-[#FAFAFA] text-[#0A0A0A] border-[#FAFAFA]'
@@ -119,11 +138,9 @@ function PersonalStep({
             className="input font-display"
             placeholder="12.345.678-9"
             value={rutValue}
-            onChange={(e) => setValue('rut', formatRut(e.target.value))}
+            onChange={(e) => setValue('rut', formatRut(e.target.value), { shouldValidate: true })}
           />
-          {rutValue && !validateRut(rutValue) && (
-            <p className="text-xs text-[#E53E3E] mt-1">RUT inválido</p>
-          )}
+          {errors.rut && <p className="text-xs text-[#E53E3E] mt-1">{errors.rut.message}</p>}
         </div>
       )}
 

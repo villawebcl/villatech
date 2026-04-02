@@ -1,4 +1,5 @@
 import { WebpayPlus, Options, Environment } from 'transbank-sdk'
+import { getPublicAppUrl, requireEnv } from './env'
 
 function getEnvironment(): Environment {
   return process.env.TRANSBANK_ENV === 'production'
@@ -9,8 +10,8 @@ function getEnvironment(): Environment {
 function getTransaction() {
   return new WebpayPlus.Transaction(
     new Options(
-      process.env.TRANSBANK_COMMERCE_CODE!,
-      process.env.TRANSBANK_API_KEY!,
+      requireEnv('TRANSBANK_COMMERCE_CODE'),
+      requireEnv('TRANSBANK_API_KEY'),
       getEnvironment()
     )
   )
@@ -23,7 +24,7 @@ export async function createWebpayTransaction(
   const tx = getTransaction()
   const buyOrder = `VT-${orderId.slice(-8).toUpperCase()}`
   const sessionId = `sess-${Date.now()}`
-  const returnUrl = `${process.env.NEXT_PUBLIC_URL}/api/payment/callback`
+  const returnUrl = `${getPublicAppUrl()}/api/payment/callback`
 
   const response = await tx.create(buyOrder, sessionId, amount, returnUrl)
   return { url: response.url, token: response.token }

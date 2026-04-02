@@ -30,6 +30,25 @@ const OrderSchema = z.object({
   rut: z.string().optional(),
   couponCode: z.string().optional(),
   paymentMethod: z.enum(['webpay', 'transfer']),
+}).superRefine((data, ctx) => {
+  if (data.invoiceType !== 'FACTURA') return
+
+  if (!data.rut?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['rut'],
+      message: 'RUT requerido para factura',
+    })
+    return
+  }
+
+  if (!validateRut(data.rut)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['rut'],
+      message: 'RUT inválido',
+    })
+  }
 })
 
 function generateOrderNumber() {
@@ -48,11 +67,6 @@ export async function POST(request: NextRequest) {
   }
 
   const { items, shipping, invoiceType, rut, couponCode, paymentMethod } = parsed.data
-
-  // Validar RUT si es factura
-  if (invoiceType === 'FACTURA' && rut && !validateRut(rut)) {
-    return NextResponse.json({ error: 'RUT inválido' }, { status: 400 })
-  }
 
   // Obtener productos y validar stock
   const productIds = items.map((i) => i.productId)

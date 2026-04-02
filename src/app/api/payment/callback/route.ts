@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { confirmWebpayTransaction } from '@/lib/transbank'
 import { fulfillPaidOrder } from '@/lib/orders'
+import { getPublicAppUrl } from '@/lib/env'
 
 function buildOrderUrl(orderId: string, accessToken: string, extraSearch?: Record<string, string>) {
-  const url = new URL(`/orden/${orderId}`, process.env.NEXT_PUBLIC_URL!)
+  const url = new URL(`/orden/${orderId}`, getPublicAppUrl())
   url.searchParams.set('token', accessToken)
   if (extraSearch) {
     Object.entries(extraSearch).forEach(([key, value]) => url.searchParams.set(key, value))
@@ -19,7 +20,7 @@ export async function POST(request: NextRequest) {
 
   if (!token) {
     // Transbank canceló — redirigir al carrito
-    return NextResponse.redirect(new URL('/carro?payment=cancelled', process.env.NEXT_PUBLIC_URL!))
+    return NextResponse.redirect(new URL('/carro?payment=cancelled', getPublicAppUrl()))
   }
 
   // Buscar el pedido por token guardado
@@ -31,7 +32,7 @@ export async function POST(request: NextRequest) {
   })
 
   if (!order) {
-    return NextResponse.redirect(new URL('/carro?payment=error', process.env.NEXT_PUBLIC_URL!))
+    return NextResponse.redirect(new URL('/carro?payment=error', getPublicAppUrl()))
   }
 
   try {
@@ -65,10 +66,10 @@ export async function POST(request: NextRequest) {
       ])
 
       return NextResponse.redirect(
-        new URL(`/carro?payment=rejected`, process.env.NEXT_PUBLIC_URL!)
+        new URL(`/carro?payment=rejected`, getPublicAppUrl())
       )
     }
   } catch {
-    return NextResponse.redirect(new URL('/carro?payment=error', process.env.NEXT_PUBLIC_URL!))
+    return NextResponse.redirect(new URL('/carro?payment=error', getPublicAppUrl()))
   }
 }

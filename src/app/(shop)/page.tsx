@@ -97,23 +97,25 @@ function HeroSection({ featuredProduct }: { featuredProduct: ProductWithCategory
           {featuredProduct ? (
             <Link
               href={`/productos/${featuredProduct.slug}`}
-              className="group relative bg-[#111111] border border-[#222222] rounded-[2px] p-8 flex items-center justify-center min-h-[380px] hover:border-[#333333] transition-colors"
+              className="group bg-[#111111] border border-[#222222] rounded-[2px] overflow-hidden flex flex-col hover:border-[#333333] transition-colors"
             >
-              <div className="relative w-full aspect-square max-w-xs">
-                <Image
-                  src={featuredProduct.images[0] || '/placeholder-product.jpg'}
-                  alt={featuredProduct.name}
-                  fill
-                  className="object-contain transition-transform duration-300 group-hover:scale-105"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  priority
-                />
+              <div className="flex-1 p-8 flex items-center justify-center min-h-[300px]">
+                <div className="relative w-full aspect-square max-w-[260px]">
+                  <Image
+                    src={featuredProduct.images[0] || '/placeholder-product.jpg'}
+                    alt={featuredProduct.name}
+                    fill
+                    className="object-contain transition-transform duration-300 group-hover:scale-105"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    priority
+                  />
+                </div>
               </div>
-              <div className="absolute bottom-6 left-6 right-6">
+              <div className="px-6 pb-6 pt-4 border-t border-[#1A1A1A]">
                 <p className="text-[11px] font-display text-[#888888] uppercase tracking-widest mb-1">
                   {featuredProduct.category.name}
                 </p>
-                <h2 className="font-body text-[#FAFAFA] line-clamp-2 text-lg">
+                <h2 className="font-body text-[#FAFAFA] line-clamp-2 text-base">
                   {featuredProduct.name}
                 </h2>
               </div>

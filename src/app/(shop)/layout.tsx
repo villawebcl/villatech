@@ -10,7 +10,7 @@ export default function ShopLayout({
   return (
     <>
       <Header />
-      <main className="flex-1 animate-fade-in">{children}</main>
+      <main className="flex-1 animate-fade-in pt-6">{children}</main>
       <Footer />
       <CartDrawer />
     </>

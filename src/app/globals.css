@@ -40,7 +40,7 @@ body {
   background-color: var(--black);
   color: var(--white);
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -284,11 +284,11 @@ h1, h2, h3, h4, h5, h6 {
   width: 100%;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding-inline: 24px;
 }
 
 @media (min-width: 768px) {
   .container-site {
-    padding: 0 40px;
+    padding-inline: 40px;
   }
 }

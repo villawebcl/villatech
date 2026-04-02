@@ -34,8 +34,15 @@ npm run dev
 
 - `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET`: habilitan login con Google.
 - `CLOUDINARY_*` y `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`: necesarias para subir imágenes desde el panel admin.
-- `TRANSBANK_*`: ya vienen con credenciales de integración para pruebas locales.
+- `TRANSBANK_*`: debes configurarlas explícitamente. Usa credenciales de integración en local y credenciales reales solo en producción.
 - `MERCADOPAGO_*`, `UPSTASH_*`: declaradas, pero no participan del flujo principal actual.
+
+## Antes de producción
+
+- Define `NEXT_PUBLIC_URL` y `NEXTAUTH_URL` con el dominio final.
+- Genera secretos nuevos para `AUTH_SECRET` y `NEXTAUTH_SECRET`.
+- Configura `TRANSBANK_*` con credenciales reales de producción.
+- No reutilices ni publiques archivos `.env` con credenciales reales.
 
 ## Verificación rápida
 

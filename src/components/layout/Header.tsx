@@ -21,6 +21,8 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const { openCart, totalItems } = useCartStore()
   const cartCount = totalItems()
+  const iconButtonClass =
+    'inline-flex items-center justify-center rounded-[2px] p-2 text-[#888888] transition-colors duration-150 hover:bg-[#111111] hover:text-[#FAFAFA]'
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -43,7 +45,7 @@ export function Header() {
             <Logo size="md" />
 
             {/* Nav desktop */}
-            <nav className="hidden lg:flex items-center gap-1">
+            <nav className="hidden md:flex items-center gap-1">
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.href}
@@ -64,7 +66,7 @@ export function Header() {
               {/* Búsqueda */}
               <Link
                 href="/buscar"
-                className="btn-ghost p-2"
+                className={iconButtonClass}
                 aria-label="Buscar productos"
               >
                 <Search size={18} />
@@ -73,7 +75,7 @@ export function Header() {
               {/* Cuenta */}
               <Link
                 href="/cuenta"
-                className="btn-ghost p-2 hidden sm:flex"
+                className={`${iconButtonClass} hidden sm:inline-flex`}
                 aria-label="Mi cuenta"
               >
                 <User size={18} />
@@ -82,7 +84,7 @@ export function Header() {
               {/* Carrito */}
               <button
                 onClick={openCart}
-                className="btn-ghost p-2 relative"
+                className={`${iconButtonClass} relative`}
                 aria-label={`Carrito (${cartCount} items)`}
               >
                 <ShoppingCart size={18} />
@@ -96,7 +98,7 @@ export function Header() {
               {/* Menú mobile */}
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="btn-ghost p-2 lg:hidden"
+                className={`${iconButtonClass} md:hidden`}
                 aria-label="Menú"
               >
                 {mobileOpen ? <X size={18} /> : <Menu size={18} />}
@@ -107,7 +109,7 @@ export function Header() {
 
         {/* Menú mobile */}
         {mobileOpen && (
-          <div className="lg:hidden border-t border-[#222222] bg-[#0A0A0A] animate-fade-in">
+          <div className="md:hidden border-t border-[#222222] bg-[#0A0A0A] animate-fade-in">
             <nav className="container-site py-4 flex flex-col gap-1">
               {NAV_LINKS.map((link) => (
                 <Link
