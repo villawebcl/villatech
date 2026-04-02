@@ -17,7 +17,7 @@ const FOOTER_LINKS = {
   ],
   'Cuenta': [
     { href: '/cuenta', label: 'Mi cuenta' },
-    { href: '/cuenta/pedidos', label: 'Mis pedidos' },
+    { href: '/cuenta', label: 'Mis pedidos' },
     { href: '/buscar', label: 'Buscar productos' },
   ],
 }
